@@ -8,7 +8,7 @@ import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerLine2D
-import help_funcs2 as ut2
+import helper_funcs2 as ut2
 from torch.utils.data import TensorDataset
 
 import sys
@@ -222,7 +222,6 @@ def load_training_data_set(train_set_file):
 def load_dev_data_set(dev_file):
     """
     this function create a dataset for the dev
-
     :param dev_file:
     :return:dev data
     """
