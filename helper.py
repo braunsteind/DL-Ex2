@@ -130,9 +130,13 @@ def reading_train_dataset(train_set):
             Dictionary_of_words.add(word_sequence)
             Dictionary_of_classes.add(match_class)
             sequence.append((word_sequence, match_class))
+    print("here")
+    print(len(Dictionary_of_words))
     #add the Unknown word to dictionary
     Dictionary_of_words.add(UNK)
     Dictionary_of_classes.add(UNK)
+    print("after")
+    print(len(Dictionary_of_words))
 
     return classes_word_sequences
 
@@ -178,11 +182,19 @@ def bring_train_data(train_data):
     global Representation_Of_classes_By_Indexes
     global Dictionary_of_words
     global Representation_Of_Indexes_By_Words
-
+    classes_word_sequences = reading_train_dataset(train_data)
     #add the first words in our dictionary
     #settings all of the dictionary
+    print("here2")
+    print(len(Dictionary_of_words))
     Dictionary_of_words.update(set([WINDOW_START,WINDOW_END]))
-    classes_word_sequences = reading_train_dataset(train_data)
+    if WINDOW_END in Dictionary_of_words:
+        print("yess")
+    else:
+        print("No")
+    print("after2")
+    print(len(Dictionary_of_words))
+
     Representation_Of_classes_By_Indexes = {
         m_class: m_index for m_index, m_class in enumerate(Dictionary_of_classes)
     }
@@ -212,6 +224,9 @@ def bring_dev_data(dev_data):
     :param dev_data:
     :return: windows of 5 words each and their classes
     """
+
+    global Dictionary_of_words
+    global Dictionary_of_classes
 
     classes_word_sequences = reading_dev_dataset(dev_data)
     return divide_word_class_sequence_into_windows(classes_word_sequences)
