@@ -161,6 +161,7 @@ class NeuralNet(nn.Module):
         super(NeuralNet, self).__init__()
 
         # create the E matrix
+        # TODO: ut2.
         self.E = nn.Embedding(ut2.E.shape[0], ut2.E.shape[1])
         self.E.weight.data.copy_(torch.from_numpy(ut2.E))
         self.input_size = ut2.E.shape[1] * window_size

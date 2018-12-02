@@ -7,7 +7,7 @@ Representation_Of_classes_By_Indexes = {}
 Representation_Of_Indexes_By_classes = {}
 # define set let us assign an index to each unique word - avoid giving the same word many indexes
 Dictionary_of_classes = set()
-Dictionary_of_words = set()
+Dictionary_of_words = []
 
 # more to define:
 UNK = "UNKNOWN_WORD"
