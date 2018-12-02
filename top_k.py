@@ -1,4 +1,4 @@
-import utils1 as ut1
+import help_funcs as helper
 import numpy as np
 from numpy import linalg as la
 
@@ -21,9 +21,8 @@ def most_similar(word, k):
     :return: list of the k most similar words.
     """
 
-    # TODO: change ut1 to helper
     # get the word
-    words = ut1.WORD_EMBEDDINGS_DICT
+    words = helper.get_word_embeddings_dict_from_file('vocab.txt', 'wordVectors.txt')
     word = words[word]
     # set the distance array
     distances = []

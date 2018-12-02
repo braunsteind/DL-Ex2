@@ -1,6 +1,10 @@
 # this file contains helper functions to deal with the training set and the test set
 
 # let's define some global list:
+from itertools import izip
+
+import numpy as np
+
 Representation_Of_Indexes_By_Words = {}
 Representation_Of_Words_By_Indexes = {}
 Representation_Of_classes_By_Indexes = {}
