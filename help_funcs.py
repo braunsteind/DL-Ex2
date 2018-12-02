@@ -92,6 +92,23 @@ def updating_dictionaries_set():
     }
 
 
+def get_word_embeddings_dict_from_file(words_file, vector_file):
+    """
+    get_word_embeddings_dict_from_file function.
+    reads the words and word embeddings vectors and fills word_embeddings_dict
+    :param words_file: name of the file containing the words
+    :param vector_file: name of the file containing the vectors of the words
+    from the words_file
+    :return: word embeddings dictionary
+    """
+    word_embeddings_dict = {}
+    for word, vector_line in izip(open(words_file), open(vector_file)):
+        word = word.strip("\n").strip()
+        vector_line = vector_line.strip("\n").strip().split(" ")
+        word_embeddings_dict[word] = np.asanyarray(map(float, vector_line))
+    return word_embeddings_dict
+
+
 def divide_word_class_sequence_into_windows(word_sequences):
     """
 
