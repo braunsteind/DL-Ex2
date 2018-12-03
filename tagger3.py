@@ -1,12 +1,14 @@
 STUDENT = {'name': 'Coral Malachi_Daniel Braunstein',
            'ID': '314882853_312510167'}
+import numpy as np
+
 import help_funcs as helper
 import torch
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerLine2D
 
@@ -273,10 +275,10 @@ class NeuralNet(nn.Module):
 
         suffix_of_wind = suffix_of_wind.reshape(-1)
 
-        prefix_of_wind = [self.prefixes[self.prefix_to_index[helper.Representation_Of_Indexes_By_Words[index][:3]]]
+        prefix_of_wind = [self.m_pref[self.prefix_to_index[helper.Representation_Of_Indexes_By_Words[index][:3]]]
                           for index in prefix_of_wind]
 
-        suffix_of_wind = [self.suffixes[self.suffix_to_index[helper.Representation_Of_Indexes_By_Words[index][:-3]]]
+        suffix_of_wind = [self.m_suffs[self.suffix_to_index[helper.Representation_Of_Indexes_By_Words[index][:-3]]]
                           for index in suffix_of_wind]
         # get lists of the indices for the prefixes/suffixes
         prefix_of_wind = [self.prefix_to_index[pref] for pref in prefix_of_wind]
