@@ -13,8 +13,8 @@ Dictionary_of_words = []
 import numpy as np
 
 # more to define:
-UNK = "UNKNOWN_WORD"
-WINDOW_START = "START_WIN"
+UNK = "UUUNKKK"
+WINDOW_START = 'START_WIN'
 WINDOW_END = "END_WIN"
 NEW_LINE = "\n"
 TAB = "\t"
@@ -81,6 +81,7 @@ def updating_dictionaries_set():
     global Representation_Of_Indexes_By_Words
     global Representation_Of_classes_By_Indexes
     global Representation_Of_Indexes_By_classes
+    global Dictionary_of_words
     print("here2")
     print(len(Dictionary_of_words))
     # Dictionary_of_words.update(set([WINDOW_START, WINDOW_END]))
