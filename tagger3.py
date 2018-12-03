@@ -171,8 +171,8 @@ class NeuralNet(nn.Module):
         self.fc0 = nn.Linear(input_size, DIM_HIDDEN_LAYER)
         self.fc1 = nn.Linear(DIM_HIDDEN_LAYER, len(helper.Dictionary_of_classes))
         # TODO: change
-        self.prefixes = {word[:prefix_size] for word in helper.WORDS_SET}
-        self.suffixes = {word[:-suffix_size] for word in helper.WORDS_SET}
+        self.prefixes = {word[:prefix_size] for word in helper.Dictionary_of_words}
+        self.suffixes = {word[:-suffix_size] for word in helper.Dictionary_of_words}
         self.prefixes = list(self.prefixes)
         self.suffixes = list(self.suffixes)
         self.prefix_to_index = {suff: i for i, suff in enumerate(self.prefixes)}
@@ -187,11 +187,14 @@ class NeuralNet(nn.Module):
         windows_pref = windows_pref.reshape(-1)
         windows_suff = windows_suff.reshape(-1)
         # get lists of prefixes/suffixes for the words in the window
-        windows_pref = [self.prefixes[self.prefix_to_index[helper.INDEX_TO_WORD[index][:prefix_size]]] for index in
-                        windows_pref]
+        windows_pref = [
+            self.prefixes[self.prefix_to_index[helper.Representation_Of_Words_By_Indexes[index][:prefix_size]]] for
+            index in windows_pref]
         # get lists of the indices for the prefixes/suffixes
-        windows_suff = [self.suffixes[self.suffix_to_index[helper.INDEX_TO_WORD[index][:-suffix_size]]] for index in
-                        windows_suff]
+        windows_suff = [
+            self.suffixes[self.suffix_to_index[helper.Representation_Of_Words_By_Indexes[index][:-suffix_size]]] for
+            index in
+            windows_suff]
         # convert to np array
         windows_pref = np.asanyarray(windows_pref)
         windows_suff = np.asanyarray(windows_suff)
