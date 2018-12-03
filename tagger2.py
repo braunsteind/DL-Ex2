@@ -269,10 +269,10 @@ def make_test_data_loader(file_name):
 def main(argv):
     # ner or pos (user input)
     folder_name_input = argv[0]
-    global learning_rate
-
-    if folder_name_input == 'ner':
-        learning_rate = 0.05
+    # global learning_rate
+    #
+    # if folder_name_input == 'ner':
+    #     learning_rate = 0.05
 
     # define a path for each dataset file
     path_test = folder_name_input + '/test'
