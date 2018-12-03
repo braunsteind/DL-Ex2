@@ -157,7 +157,7 @@ class NeuralNet(nn.Module):
        should be followed by tanh activation function
        """
 
-    def __init__(self, input_size, trained):
+    def __init__(self, trained, input_size):
         super(NeuralNet, self).__init__()
 
         # create the E matrix
@@ -171,8 +171,8 @@ class NeuralNet(nn.Module):
         self.fc0 = nn.Linear(input_size, DIM_HIDDEN_LAYER)
         self.fc1 = nn.Linear(DIM_HIDDEN_LAYER, len(helper.Dictionary_of_classes))
         # TODO: change
-        self.prefixes = {word[:prefix_size] for word in utils.WORDS_SET}
-        self.suffixes = {word[:-suffix_size] for word in utils.WORDS_SET}
+        self.prefixes = {word[:prefix_size] for word in helper.WORDS_SET}
+        self.suffixes = {word[:-suffix_size] for word in helper.WORDS_SET}
         self.prefixes = list(self.prefixes)
         self.suffixes = list(self.suffixes)
         self.prefix_to_index = {suff: i for i, suff in enumerate(self.prefixes)}
@@ -187,10 +187,10 @@ class NeuralNet(nn.Module):
         windows_pref = windows_pref.reshape(-1)
         windows_suff = windows_suff.reshape(-1)
         # get lists of prefixes/suffixes for the words in the window
-        windows_pref = [self.prefixes[self.prefix_to_index[utils.INDEX_TO_WORD[index][:PREFIX_SIZE]]] for index in
+        windows_pref = [self.prefixes[self.prefix_to_index[helper.INDEX_TO_WORD[index][:prefix_size]]] for index in
                         windows_pref]
         # get lists of the indices for the prefixes/suffixes
-        windows_suff = [self.suffixes[self.suffix_to_index[utils.INDEX_TO_WORD[index][:-SUFFIX_SIZE]]] for index in
+        windows_suff = [self.suffixes[self.suffix_to_index[helper.INDEX_TO_WORD[index][:-suffix_size]]] for index in
                         windows_suff]
         # convert to np array
         windows_pref = np.asanyarray(windows_pref)
@@ -199,7 +199,7 @@ class NeuralNet(nn.Module):
         windows_pref = torch.from_numpy(windows_pref.reshape(x.data.shape)).type(torch.LongTensor)
         windows_suff = torch.from_numpy(windows_suff.reshape(x.data.shape)).type(torch.LongTensor)
 
-        x = self.E(x).view(-1, self.input_size)
+        x = (self.E(x) + self.E_pref(windows_pref) + self.E_suff(windows_suff)).view(-1, self.input_size)
         x = F.tanh(self.fc0(x))
         x = self.fc1(x)
         x_softmax = F.log_softmax(x, dim=1)
@@ -324,8 +324,8 @@ def main(argv):
     #
     dataset_test = make_test_data_loader(path_test)
     # # done splitting
-    my_neural_network_model = NeuralNet(input_size=DIM_INPUT, is_pre_trained_embeddings_needed)
-    optimizer = optim.Adam(my_neural_network_model.parameters(), lr=learning_rate)
+    my_neural_network_model = NeuralNet(is_pre_trained_embeddings_needed, input_size=DIM_INPUT)
+    optimizer = optim.RMSprop(my_neural_network_model.parameters(), lr=learning_rate)
     #
     trainer = Part1Model(optimizer, set_of_training, my_neural_network_model, dataset_test, set_of_dev)
     trainer.Start_Action(folder_name_input)
