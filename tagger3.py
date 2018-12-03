@@ -6,7 +6,7 @@ import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerLine2D
-import help_funcs as ut1
+import help_funcs as helper
 from torch.utils.data import TensorDataset
 
 import sys
@@ -15,7 +15,7 @@ NEW_LINE = "\n"
 TAB = "\t"
 # let's define our parameters:
 
-learning_rate = 0.001
+learning_rate = 0.01
 window_size = 5  # 2 neighbors + target word
 DIM_HIDDEN_LAYER = 150
 tags_number = 10
@@ -39,7 +39,7 @@ class Part1Model(object):
         self.dev_dataset = dev_dataset
 
     def Get_Representation_Of_Indexes_By_classes(self, lst_of_index_to_convert):
-        return [ut1.Representation_Of_Indexes_By_classes[i] for i in lst_of_index_to_convert]
+        return [helper.Representation_Of_Indexes_By_classes[i] for i in lst_of_index_to_convert]
 
     def Start_Action(self, ner_or_pos):
         m_precent_of_accuracy_on_dev = {}
@@ -104,8 +104,8 @@ class Part1Model(object):
             m_loss += F.nll_loss(output, target, size_average=False).item()
             y_hat = get_y_tag(output)
             if tagger_type == 'ner':
-                if ut1.Representation_Of_Indexes_By_classes[y_hat.cpu().sum().item()] != 'O' or \
-                        ut1.Representation_Of_Indexes_By_classes[target.cpu().sum().item()] != 'O':
+                if helper.Representation_Of_Indexes_By_classes[y_hat.cpu().sum().item()] != 'O' or \
+                        helper.Representation_Of_Indexes_By_classes[target.cpu().sum().item()] != 'O':
                     m_success += y_hat.eq(target.data.view_as(y_hat)).cpu().sum().item()
                     m_count += 1
             else:
@@ -163,16 +163,42 @@ class NeuralNet(nn.Module):
         # create the E matrix
         if trained:
             # TODO: ut1
-            self.E = nn.Embedding(ut1.E.shape[0], ut1.E.shape[1])
-            self.E.weight.data.copy_(torch.from_numpy(ut1.E))
+            self.E = nn.Embedding(helper.E.shape[0], helper.E.shape[1])
+            self.E.weight.data.copy_(torch.from_numpy(helper.E))
         else:
-            self.E = nn.Embedding(len(ut1.Dictionary_of_words), VECTOR_EMBEDDINGS_DIM)  # Embedding matrix
+            self.E = nn.Embedding(len(helper.Dictionary_of_words), VECTOR_EMBEDDINGS_DIM)  # Embedding matrix
         self.input_size = window_size * VECTOR_EMBEDDINGS_DIM
         self.fc0 = nn.Linear(input_size, DIM_HIDDEN_LAYER)
-        self.fc1 = nn.Linear(DIM_HIDDEN_LAYER, len(ut1.Dictionary_of_classes))
-
+        self.fc1 = nn.Linear(DIM_HIDDEN_LAYER, len(helper.Dictionary_of_classes))
+        # TODO: change
+        self.prefixes = {word[:prefix_size] for word in utils.WORDS_SET}
+        self.suffixes = {word[:-suffix_size] for word in utils.WORDS_SET}
+        self.prefixes = list(self.prefixes)
+        self.suffixes = list(self.suffixes)
+        self.prefix_to_index = {suff: i for i, suff in enumerate(self.prefixes)}
+        self.suffix_to_index = {suff: i for i, suff in enumerate(self.suffixes)}
+        self.E_pref = nn.Embedding(len(self.prefixes), VECTOR_EMBEDDINGS_DIM)
+        self.E_suff = nn.Embedding(len(self.suffixes), VECTOR_EMBEDDINGS_DIM)
 
     def forward(self, x):
+        # TODO: change
+        windows_pref = x.data.numpy().copy()
+        windows_suff = x.data.numpy().copy()
+        windows_pref = windows_pref.reshape(-1)
+        windows_suff = windows_suff.reshape(-1)
+        # get lists of prefixes/suffixes for the words in the window
+        windows_pref = [self.prefixes[self.prefix_to_index[utils.INDEX_TO_WORD[index][:PREFIX_SIZE]]] for index in
+                        windows_pref]
+        # get lists of the indices for the prefixes/suffixes
+        windows_suff = [self.suffixes[self.suffix_to_index[utils.INDEX_TO_WORD[index][:-SUFFIX_SIZE]]] for index in
+                        windows_suff]
+        # convert to np array
+        windows_pref = np.asanyarray(windows_pref)
+        windows_suff = np.asanyarray(windows_suff)
+        # reshape
+        windows_pref = torch.from_numpy(windows_pref.reshape(x.data.shape)).type(torch.LongTensor)
+        windows_suff = torch.from_numpy(windows_suff.reshape(x.data.shape)).type(torch.LongTensor)
+
         x = self.E(x).view(-1, self.input_size)
         x = F.tanh(self.fc0(x))
         x = self.fc1(x)
@@ -194,7 +220,7 @@ def plotTrainAndValidationGraphs(avg_validation_loss_per_epoch_dict, validation_
 
 
 def load_training_data_set(train_set_file):
-    windows_array, tags = ut1.get_train_data(train_set_file)
+    windows_array, tags = helper.get_train_data(train_set_file)
     # Convert a list into a numpy array and set data-type to float32
     windows_array = np.asarray(windows_array, np.float32)
 
@@ -231,7 +257,7 @@ def load_dev_data_set(dev_file):
     :return:dev data
     """
 
-    windows_array, tags = ut1.get_dev_data(dev_file)
+    windows_array, tags = helper.get_dev_data(dev_file)
     # Convert a list into a numpy array and set data-type to float32
     windows_array = np.asarray(windows_array, np.float32)
 
@@ -267,8 +293,15 @@ def make_test_data_loader(file_name):
     :param file_name: test file name.
     :return: new data loader.
     """
-    x = ut1.bring_test_data(file_name)
+    x = helper.bring_test_data(file_name)
     return x
+
+
+is_pre_trained_embeddings_needed = bool(int(sys.argv[2]))
+if is_pre_trained_embeddings_needed:
+    import helper_funcs2 as helper
+else:
+    import help_funcs as helper
 
 
 def main(argv):
@@ -285,13 +318,13 @@ def main(argv):
     path_dev = folder_name_input + '/dev'
 
     set_of_training = load_training_data_set(path_train)
-    print(len(ut1.Dictionary_of_words))
+    print(len(helper.Dictionary_of_words))
 
     set_of_dev = load_dev_data_set(path_dev)
     #
     dataset_test = make_test_data_loader(path_test)
     # # done splitting
-    my_neural_network_model = NeuralNet(input_size=DIM_INPUT)
+    my_neural_network_model = NeuralNet(input_size=DIM_INPUT, is_pre_trained_embeddings_needed)
     optimizer = optim.Adam(my_neural_network_model.parameters(), lr=learning_rate)
     #
     trainer = Part1Model(optimizer, set_of_training, my_neural_network_model, dataset_test, set_of_dev)
