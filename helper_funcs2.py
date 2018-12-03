@@ -1,5 +1,6 @@
 # this file contains helper functions to deal with the training set and the test set
 from itertools import izip
+
 # let's define some global list:
 Representation_Of_Indexes_By_Words = {}
 Representation_Of_Words_By_Indexes = {}
@@ -22,6 +23,7 @@ TAB = "\t"
 def get_word_embeddings_matrix():
     return np.loadtxt("wordVectors.txt")
 
+
 def add_class_and_word_to_dics(m_class, word):
     global Dictionary_of_words
     global Dictionary_of_classes
@@ -43,11 +45,11 @@ def read_train_data(file_name):
                 continue
             line = clean_line(line)
             word, tag = line.split()
-            #add_class_and_word_to_dics(tag, word)
+            # add_class_and_word_to_dics(tag, word)
             Dictionary_of_classes.add(tag)
             sentence_and_tags.append((word.lower(), tag))
     Dictionary_of_classes.add(UNK)
-    #Dictionary_of_words.add(UNK)
+    # Dictionary_of_words.add(UNK)
     return tagged_sentences
 
 
@@ -82,7 +84,7 @@ def updating_dictionaries_set():
     global Dictionary_of_words
     print("here2")
     print(len(Dictionary_of_words))
-    #Dictionary_of_words.update(set([WINDOW_START, WINDOW_END]))
+    # Dictionary_of_words.update(set([WINDOW_START, WINDOW_END]))
     print("after2")
     print(len(Dictionary_of_words))
     Representation_Of_Words_By_Indexes = {
@@ -217,22 +219,20 @@ def get_train_data(file_name):
     return windows_array, classes
 
 
-
 def get_word_embeddings_dict_from_file(words_file, vector_file):
-
     word_embeddings_dict = {}
     for word, vector_line in izip(open(words_file), open(vector_file)):
         word = word.strip(NEW_LINE).strip()
         vector_line = vector_line.strip("\n").strip().split(" ")
-        word_embeddings_dict[word] = np.asanyarray(map(float,vector_line))
+        word_embeddings_dict[word] = np.asanyarray(map(float, vector_line))
         Dictionary_of_words.append(word)
     return word_embeddings_dict
-
 
 
 def bring_test_data(test_data_set):
     word_sequences = reading_test_dataset(test_data_set)
     return divide_word_sequence_into_windows(word_sequences)
+
 
 WORD_EMBEDDINGS_DICT = get_word_embeddings_dict_from_file('vocab.txt', 'wordVectors.txt')
 E = get_word_embeddings_matrix()
