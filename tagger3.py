@@ -188,11 +188,11 @@ class NeuralNet(nn.Module):
         windows_suff = windows_suff.reshape(-1)
         # get lists of prefixes/suffixes for the words in the window
         windows_pref = [
-            self.prefixes[self.prefix_to_index[helper.Representation_Of_Words_By_Indexes[index][:prefix_size]]] for
+            self.prefixes[self.prefix_to_index[helper.Representation_Of_Indexes_By_Words[index][:prefix_size]]] for
             index in windows_pref]
         # get lists of the indices for the prefixes/suffixes
         windows_suff = [
-            self.suffixes[self.suffix_to_index[helper.Representation_Of_Words_By_Indexes[index][:-suffix_size]]] for
+            self.suffixes[self.suffix_to_index[helper.Representation_Of_Indexes_By_Words[index][:-suffix_size]]] for
             index in
             windows_suff]
         # convert to np array
